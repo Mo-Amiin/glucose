@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model patient {
+  patientID   String   @unique
+  name        String   @unique
+  age         String
+  tell        String   @unique
+  sex         String
+  email       String
+  password    String
+  accountType String   @default("PATIENT")
+  joinedAt    DateTime @default(now())
+  deviceToken String   @default("")
+  admin       admin?   @relation(fields: [adminId], references: [id])
+  adminId     Int?
+  Report      Report[]
+}
+
+model admin {
+  id          Int    @unique @default(autoincrement())
+  name        String
+  email       String @unique
+  accountType String @default("ADMIN")
+  password    String
+
+  patient patient[]
+}
+
+model Report {
+  id        Int        @unique @default(autoincrement())
+  patient   patient?   @relation(fields: [patientId], references: [patientID])
+  patientId String?
+  date      DateTime   @default(now())
+  BodyTemp  BodyTemp[]
+  RoomTemp  RoomTemp[]
+  Heart     Heart[]
+  glucose   glucose[]
+}
+
+model BodyTemp {
+  id       Int      @unique @default(autoincrement())
+  data     String
+  date     DateTime @default(now())
+  state    String   @default("")
+  type    String   @default("Body Temperature")
+  Report   Report?  @relation(fields: [reportID], references: [id])
+  reportID Int?
+}
+
+model glucose {
+  id       Int      @unique @default(autoincrement())
+  data     String
+  date     DateTime @default(now())
+  state    String   @default("")
+  type    String   @default("blood sugar")
+  Report   Report?  @relation(fields: [reportID], references: [id])
+  reportID Int?
+}
+
+model RoomTemp {
+  id       Int      @unique @default(autoincrement())
+  data     String
+  date     DateTime @default(now())
+  state    String   @default("")
+  type    String   @default("Room Temperature")
+  Report   Report?  @relation(fields: [reportID], references: [id])
+  reportID Int?
+}
+
+model Heart {
+  id       Int      @unique @default(autoincrement())
+  data     String
+  state    String   @default("")
+  date     DateTime @default(now())
+  type    String   @default("Heart Beat")
+  Report   Report?  @relation(fields: [reportID], references: [id])
+  reportID Int?
+}

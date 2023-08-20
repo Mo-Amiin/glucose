@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "patient" ALTER COLUMN "age" SET DATA TYPE TEXT;

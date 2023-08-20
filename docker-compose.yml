@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  glucose:
+    image: postgres:latest
+    container_name: glucose
+    ports:
+      - "5433:5432"
+
+    environment:
+      POSTGRES_USER: glucose
+      POSTGRES_PASSWORD: glucose123
+      POSTGRES_DB: glucosedb
+    networks:
+      - postgres
+    
+  pgadmin:
+    container_name: pgadmin2
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: amiinaliabdullaahi@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: abc123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+
+    ports:
+      - "5051:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+    
+networks:
+    postgres:
+      driver: bridge
