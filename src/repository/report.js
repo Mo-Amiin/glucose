@@ -3,21 +3,22 @@ const prisma = new PrismaClient();
 
 
 export const getpatientReport = async(id,date)=>{
-
+console.log(date , "0----------");
 const today = new Date(date);
-console.log(today.toLocaleString());
+console.log(today , "---------------llll");
+
 const patient  = await prisma.patient.findFirst({where : {patientID : id} , select : {Report : {select : {id : true}}}});
 if(!patient ) return null
 const report = patient.Report.flat() ;
 console.log(report);
 const reportID = report[0]?.id;
 if(reportID == undefined)  return null
-const breakfastStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 13, 25, 0);
-const breakfastEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 13, 35, 0);
-const lunchStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 13, 36, 0);
-const lunchEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 13, 43, 0);
-const dinnerStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 13, 44, 0);
-const dinnerEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 14, 0, 0);
+const breakfastStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 43, 0);
+const breakfastEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 45, 0);
+const lunchStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 46, 0);
+const lunchEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 18, 48, 0);
+const dinnerStart = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 49, 0);
+const dinnerEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 18, 59, 0);
 
 const BodyTemp = await prisma.bodyTemp.findFirst({
   where: {
@@ -127,11 +128,11 @@ const HeartLunch = await prisma.heart.findFirst({
   }, 
 });
 
-const bodyTempDinner= await prisma.bodyTemp.findFirst({
+const bodyTempDinner = await prisma.bodyTemp.findFirst({
   where: {
     date: {
       gte: dinnerStart,
-      lte: dinnerStart,
+      lte: dinnerEnd,
     },
     reportID : reportID
   },
@@ -200,6 +201,7 @@ const transformedData = {
   } ,
 
 };
+
 if(transformedData == null) return null
 return transformedData;
 
@@ -241,11 +243,10 @@ export const BodyTemp = async (bodytemprature = {}) => {
     return await prisma.bodyTemp.create({ data: { ...bodytemprature } })
 }
 
-// console.log(await BodyTemp({data:"00000000",type:"Body Temperature"}));
 
 
 export const glucose = async (glucose = {}) => {
-  return await prisma.glucose.create({ data: { ...glucose } })
+  return await prisma.glucose.create({ data: { ...glucose} })
 }
 
 export const RoomTemp = async (roomTemperature = {}) => {

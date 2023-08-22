@@ -1,12 +1,12 @@
 import express from 'express'
-import { allPatient, deletePatients, getPatient, savePatient, stateData, updatePatient } from '../services/patientServices.js';
+import { allPatient, deletePatients, getPatient, savePatient, stateData, updateFcm, updatePatient } from '../services/patientServices.js';
 import authorize from "../middleware/auth.js"
 import { Role } from '../security/securityConfig.js';
 import  admin from 'firebase-admin';
-import  serviceAccount  from "../blood-glucose-67684-firebase-adminsdk-ojakt-19a34dbe39.json"  assert { type: "json" };
 import { BodyTemp, RoomTemp, findBodyTemp, findReport, getpatientReport, glucose, heart } from '../repository/report.js';
 import { PrismaClient } from "@prisma/client";
-
+import {db, sendPushNotification} from '../utility/utlity.js'
+import { getPatientNotification, saveNotification } from '../repository/patientRepo.js';
 const router = express.Router();
 
 
@@ -14,13 +14,7 @@ const prisma = new PrismaClient();
 
 
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://blood-glucose-67684-default-rtdb.firebaseio.com/', // Replace with your Firebase project's database URL
-});
 
-
-const db = admin.database();
 
 const today = new Date();
 console.log(today);
@@ -56,7 +50,6 @@ router.get('/currentSensorData/:id' ,async (req, res) => {
       await heart({data , reportID , state})
       return res.status(200).json(realTime_SensorData)
     });
-  
 })
   
 
@@ -76,9 +69,9 @@ console.log(req.body.type);
     if(req.body.type === "Blood Sugar"){
       console.log("walaa soo galay");
       const state = stateData(data , 10 , 5 );
+      console.log();
       await glucose({ data, type,reportID , state})
       return res.status(200).json({message :"Success blood suger"});
-
     }
     
     if(req.body.type == 'Body Temperature'){
@@ -129,7 +122,7 @@ router.get('/patientReport/:id/:date',async (req,res,next)=>{
 
 router.get('/report/',async (req,res)=>{
   try{
-    const report = await prisma.bodyTemp.findMany({})
+    const report = await prisma.report.findMany({})
     res.send(report)
   }catch(e){
     next(e)
@@ -146,6 +139,7 @@ router.get('/:id',async (req, res , next) => {
   }
 })
 
+
 router.post('/', async (req, res  , next) => {
   try{
     await savePatient(req.body)
@@ -155,7 +149,34 @@ router.post('/', async (req, res  , next) => {
   }
 })
 
-  
+router.post('/sendNotification/:patientId' ,async (req,res , next) => {
+ try{
+   const {patientId} = req.params;
+   const {title , body , deviceToken} = req.body;
+    await sendPushNotification(patientId , title , body , deviceToken);
+   const tt =  await saveNotification({patientId , title , body})
+   console.log(tt);
+    res.status(200).json({message : "Successfully sent"})
+ }catch(e){
+  next(e)
+ }
+});
+
+
+router.get('/notifications/:id' , async(req,res , next)=>{
+  try{
+    const {id} = req.params ;
+    const notifications = await getPatientNotification(id)
+    res.send(notifications);
+  }catch(e){
+    next(e)
+  }
+ 
+})
+
+
+
+
 
 router.put('/:id', async (req, res, next) => {
   try {
@@ -179,6 +200,15 @@ router.delete('/:id/', async (req, res, next) => {
   }
 });
 
+router.put("/deviceToken/:id",async (req,res)=>{
+  // Verify the token
+    const { id } = req.params;
+    console.log("-------------------lll",id , req.body);
+    const patient  = await updateFcm(id ,req.body.deviceToken) 
+    console.log(patient);
+    res.status(200).json({message : "Succesfully updated" , status :"Success"});
+
+})
 
 // router.get('/bodytemp/tt', async(req,res)=>{
 //   const dd = await prisma.BodyTemp.findMany({});

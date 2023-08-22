@@ -19,9 +19,13 @@ export const findmany =async()=>{
    return await prisma.admin.findFirst({where:{password : password}})
 }
   
-  export const findId = async(id)=>{
-     return await prisma.admin.findFirst({where:{id:Number(id) } , include : {patient : true}})
+  export const findLatestPatients = async(id)=>{
+     return await prisma.admin.findFirst({where:{id:Number(id) } , include : {patient : true} , orderBy : {id:'desc'}})
   }
+
+  export const  findId = async(id)=>{
+   return await prisma.admin.findFirst({where:{id:Number(id) } , include : {patient : true }  })
+}
 
   
   export const findByEmail = async(email)=>{

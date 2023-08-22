@@ -11,19 +11,20 @@ datasource db {
 }
 
 model patient {
-  patientID   String   @unique
-  name        String   @unique
-  age         String
-  tell        String   @unique
-  sex         String
-  email       String
-  password    String
-  accountType String   @default("PATIENT")
-  joinedAt    DateTime @default(now())
-  deviceToken String   @default("")
-  admin       admin?   @relation(fields: [adminId], references: [id])
-  adminId     Int?
-  Report      Report[]
+  patientID    String         @unique
+  name         String         @unique
+  age          String
+  tell         String         @unique
+  sex          String
+  email        String
+  password     String
+  accountType  String         @default("PATIENT")
+  joinedAt     DateTime       @default(now())
+  deviceToken  String         @default("")
+  admin        admin?         @relation(fields: [adminId], references: [id])
+  adminId      Int?
+  Report       Report[]
+  notification notification[]
 }
 
 model admin {
@@ -52,7 +53,7 @@ model BodyTemp {
   data     String
   date     DateTime @default(now())
   state    String   @default("")
-  type    String   @default("Body Temperature")
+  type     String   @default("Body Temperature")
   Report   Report?  @relation(fields: [reportID], references: [id])
   reportID Int?
 }
@@ -62,7 +63,7 @@ model glucose {
   data     String
   date     DateTime @default(now())
   state    String   @default("")
-  type    String   @default("blood sugar")
+  type     String   @default("blood sugar")
   Report   Report?  @relation(fields: [reportID], references: [id])
   reportID Int?
 }
@@ -72,7 +73,7 @@ model RoomTemp {
   data     String
   date     DateTime @default(now())
   state    String   @default("")
-  type    String   @default("Room Temperature")
+  type     String   @default("Room Temperature")
   Report   Report?  @relation(fields: [reportID], references: [id])
   reportID Int?
 }
@@ -82,7 +83,15 @@ model Heart {
   data     String
   state    String   @default("")
   date     DateTime @default(now())
-  type    String   @default("Heart Beat")
+  type     String   @default("Heart Beat")
   Report   Report?  @relation(fields: [reportID], references: [id])
   reportID Int?
+}
+
+model notification {
+  id       Int      @unique @default(autoincrement())
+  title     String
+  body   String @default("")
+  patient   patient? @relation(fields: [patientId], references: [patientID])
+  patientId String?
 }

@@ -23,10 +23,15 @@ export const countPatient = async()=>{
 }
 
 
+export const updateDeviceToken  = async(patientID, deviceToken)=>{
+   return await prisma.patient.update({where : {patientID : patientID} , data : {deviceToken:deviceToken}})
+}
+
 
 export const findByID = async(patientID)=>{
    return await prisma.patient.findFirst({where:{patientID : patientID} })
 }
+
 
 
 export const findByNumber = async(number)=>{
@@ -51,3 +56,12 @@ export const isExist = async(email)=>{
     return  PatientEmail
 }
 
+
+
+export const saveNotification = async (Notification = {})=>{
+   return await prisma.notification.create({data : {...Notification }})
+}
+
+export const getPatientNotification = async (patientId)=>{
+   return await prisma.notification.findMany({where : {patientId :patientId }});
+}

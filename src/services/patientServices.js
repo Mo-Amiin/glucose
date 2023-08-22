@@ -2,7 +2,7 @@ import { apiRequestException } from '../exceptions/apiException.js'
 import { patientSchema, patientSchemam } from "../utility/validation-schema.js"
 import {validateUtil} from '../utility/utlity.js'
 import {findmany,findByNumber , save ,
-     update , deletePatient, isExist , findByID, findByPassowrd } from "../repository/patientRepo.js"
+     update , deletePatient, isExist , findByID, findByPassowrd, updateDeviceToken } from "../repository/patientRepo.js"
 import { saveReport } from '../repository/report.js'
 
 
@@ -36,8 +36,12 @@ export const updatePatient = async(id , patient = {})=>{
     if(!patientId) return   apiRequestException(`Error: patient of this id ${id} is not found`, 404);
     await validateUtil(patient , patientSchemam)
     return await update(id , patient) 
-
 };
+
+
+export const updateFcm = async(id , deviceToken)=>{
+  return  await updateDeviceToken(id,deviceToken)
+}
 
 
 export const deletePatients =async (id)=>{
